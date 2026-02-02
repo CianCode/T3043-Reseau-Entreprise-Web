@@ -1,15 +1,25 @@
 import { Form, Head } from '@inertiajs/react';
+import { useState } from 'react';
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import AuthLayout from '@/layouts/auth-layout';
 import { login } from '@/routes';
 import { store } from '@/routes/register';
 
 export default function Register() {
+    const [role, setRole] = useState<string>('student');
+
     return (
         <AuthLayout
             title="Create an account"
@@ -58,12 +68,45 @@ export default function Register() {
                             </div>
 
                             <div className="grid gap-2">
+                                <Label htmlFor="role">I want to</Label>
+                                <input type="hidden" name="role" value={role} />
+                                <Select value={role} onValueChange={setRole}>
+                                    <SelectTrigger id="role" tabIndex={3}>
+                                        <SelectValue placeholder="Select your role" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="student">
+                                            Learn a language (Student)
+                                        </SelectItem>
+                                        <SelectItem value="teacher">
+                                            Teach a language (Teacher)
+                                        </SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <InputError message={errors.role} />
+                            </div>
+
+                            <div className="grid gap-2">
+                                <Label htmlFor="native_language">
+                                    Native Language (Optional)
+                                </Label>
+                                <Input
+                                    id="native_language"
+                                    type="text"
+                                    tabIndex={4}
+                                    name="native_language"
+                                    placeholder="e.g., English, Spanish, etc."
+                                />
+                                <InputError message={errors.native_language} />
+                            </div>
+
+                            <div className="grid gap-2">
                                 <Label htmlFor="password">Password</Label>
                                 <Input
                                     id="password"
                                     type="password"
                                     required
-                                    tabIndex={3}
+                                    tabIndex={5}
                                     autoComplete="new-password"
                                     name="password"
                                     placeholder="Password"
@@ -79,7 +122,7 @@ export default function Register() {
                                     id="password_confirmation"
                                     type="password"
                                     required
-                                    tabIndex={4}
+                                    tabIndex={6}
                                     autoComplete="new-password"
                                     name="password_confirmation"
                                     placeholder="Confirm password"
@@ -92,7 +135,7 @@ export default function Register() {
                             <Button
                                 type="submit"
                                 className="mt-2 w-full"
-                                tabIndex={5}
+                                tabIndex={7}
                                 data-test="register-user-button"
                             >
                                 {processing && <Spinner />}
@@ -102,7 +145,7 @@ export default function Register() {
 
                         <div className="text-center text-sm text-muted-foreground">
                             Already have an account?{' '}
-                            <TextLink href={login()} tabIndex={6}>
+                            <TextLink href={login()} tabIndex={8}>
                                 Log in
                             </TextLink>
                         </div>

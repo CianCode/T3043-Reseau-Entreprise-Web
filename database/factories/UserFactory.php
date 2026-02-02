@@ -28,6 +28,10 @@ class UserFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
+            'role' => 'student',
+            'native_language' => fake()->randomElement(['English', 'Spanish', 'French', 'German', 'Italian']),
+            'current_streak' => fake()->numberBetween(0, 100),
+            'last_activity_date' => fake()->dateTimeBetween('-30 days', 'now'),
             'remember_token' => Str::random(10),
             'two_factor_secret' => null,
             'two_factor_recovery_codes' => null,
@@ -54,6 +58,26 @@ class UserFactory extends Factory
             'two_factor_secret' => encrypt('secret'),
             'two_factor_recovery_codes' => encrypt(json_encode(['recovery-code-1'])),
             'two_factor_confirmed_at' => now(),
+        ]);
+    }
+
+    /**
+     * Indicate that the user is a teacher.
+     */
+    public function teacher(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'teacher',
+        ]);
+    }
+
+    /**
+     * Indicate that the user is an admin.
+     */
+    public function admin(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'admin',
         ]);
     }
 }
