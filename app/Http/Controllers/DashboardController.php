@@ -17,6 +17,19 @@ class DashboardController extends Controller
             'role' => $user->role,
         ];
 
+        // Teacher-specific data
+        if ($user->role === 'teacher') {
+            $courses = $user->taughtCourses()
+                ->with(['modules.lessons'])
+                ->orderBy('order')
+                ->get();
+
+            $data['courses'] = $courses;
+            $data['languages'] = Language::where('is_active', true)
+                ->orderBy('name')
+                ->get(['id', 'name', 'code']);
+        }
+
         // Student-specific data
         if ($user->role === 'student') {
             $enrolledCourses = $user->enrolledCourses()

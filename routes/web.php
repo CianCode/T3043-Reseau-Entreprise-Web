@@ -5,8 +5,11 @@ use Inertia\Inertia;
 use Laravel\Fortify\Features;
 
 Route::get('/', function () {
+    $courses = \App\Models\Course::orderBy('order')
+        ->get(['id', 'title', 'description', 'level', 'language_id', 'is_published']);
     return Inertia::render('welcome', [
         'canRegister' => Features::enabled(Features::registration()),
+        'courses' => $courses,
     ]);
 })->name('home');
 
@@ -23,6 +26,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('courses', [App\Http\Controllers\CourseController::class, 'store'])->name('courses.store');
     Route::get('courses/{course}', [App\Http\Controllers\CourseController::class, 'show'])->name('courses.show');
 
+    Route::post('courses/{course}/enroll', [App\Http\Controllers\EnrollmentController::class, 'enroll'])->name('courses.enroll');
     Route::post('modules', [App\Http\Controllers\ModuleController::class, 'store'])->name('modules.store');
     Route::post('courses/{course}/modules/reorder', [App\Http\Controllers\ModuleController::class, 'reorder'])->name('modules.reorder');
 
