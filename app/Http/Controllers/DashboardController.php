@@ -21,7 +21,6 @@ class DashboardController extends Controller
         if ($user->role === 'teacher') {
             $courses = $user->taughtCourses()
                 ->with(['modules.lessons'])
-                ->where('is_published', true)
                 ->orderBy('order')
                 ->get();
 
