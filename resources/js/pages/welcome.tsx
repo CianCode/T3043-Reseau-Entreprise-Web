@@ -1,5 +1,17 @@
+
 import { Head, router } from '@inertiajs/react';
 import Navbar from '@/components/navbar';
+import {
+    Dialog,
+    DialogTrigger,
+    DialogContent,
+    DialogHeader,
+    DialogFooter,
+    DialogTitle,
+    DialogDescription,
+    DialogClose,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 
 export default function Welcome({
 
@@ -60,17 +72,36 @@ export default function Welcome({
                                                 {course.is_published ? 'Publié' : 'Non publié'}
                                             </span>
                                         </div>
-                                        <button
-                                            type="button"
-                                            className="inline-block rounded-full bg-primary px-6 py-2 text-sm font-medium text-white transition-all hover:bg-primary/80"
-                                            onClick={() => {
-                                                router.post(`/courses/${course.id}/enroll`, {}, {
-                                                    onSuccess: () => router.visit('/dashboard'),
-                                                });
-                                            }}
-                                        >
-                                            Start Course
-                                        </button>
+                                        <Dialog>
+                                            <DialogTrigger asChild>
+                                                <Button className="rounded-full px-6 py-2 text-sm font-medium" type="button">
+                                                    Start Course
+                                                </Button>
+                                            </DialogTrigger>
+                                            <DialogContent>
+                                                <DialogHeader>
+                                                    <DialogTitle>Confirmer l'inscription</DialogTitle>
+                                                    <DialogDescription>
+                                                        Êtes-vous sûr de vouloir commencer le cours « {course.title} » ?
+                                                    </DialogDescription>
+                                                </DialogHeader>
+                                                <DialogFooter className="flex flex-col gap-2 items-center">
+                                                    <Button
+                                                        onClick={() => {
+                                                            router.post(`/courses/${course.id}/enroll`, {}, {
+                                                                onSuccess: () => router.visit('/dashboard'),
+                                                            });
+                                                        }}
+                                                        className="w-56 max-w-full"
+                                                    >
+                                                        Oui, commencer le cours
+                                                    </Button>
+                                                    <DialogClose asChild>
+                                                        <Button variant="outline" className="w-56 max-w-full">Annuler</Button>
+                                                    </DialogClose>
+                                                </DialogFooter>
+                                            </DialogContent>
+                                        </Dialog>
                                     </div>
                                 ))}
                             </div>
