@@ -59,7 +59,7 @@ class DashboardController extends Controller
             'role' => $user->role,
             'selectedModule' => $module,
             'courses' => $user->role === 'teacher'
-                ? $user->taughtCourses()->with(['modules.lessons'])->where('is_published', true)->orderBy('order')->get()
+                ? $user->taughtCourses()->with(['modules.lessons'])->orderBy('order')->get()
                 : null,
             'languages' => $user->role === 'teacher'
                 ? Language::where('is_active', true)->orderBy('name')->get(['id', 'name', 'code'])

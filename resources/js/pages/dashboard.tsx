@@ -1,5 +1,5 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { BookOpen, FileText, ClipboardList, Plus } from 'lucide-react';
+import { BookOpen, FileText, ClipboardList, Plus, Edit } from 'lucide-react';
 import { useState } from 'react';
 import { CreateLessonDialog } from '@/components/create-lesson-dialog';
 import { Button } from '@/components/ui/button';
@@ -76,10 +76,22 @@ export default function Dashboard() {
                                                         key={lesson.id}
                                                         className="rounded-xl border border-sidebar-border/70 p-4 dark:border-sidebar-border"
                                                     >
-                                                        <div className="mb-2">
+                                                        <div className="mb-2 flex items-start justify-between">
                                                             <h3 className="font-semibold">
                                                                 {lesson.title}
                                                             </h3>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                className="h-8 w-8 p-0"
+                                                                asChild
+                                                            >
+                                                                <Link
+                                                                    href={`/lessons/${lesson.id}/edit`}
+                                                                >
+                                                                    <Edit className="h-4 w-4" />
+                                                                </Link>
+                                                            </Button>
                                                         </div>
                                                         <p className="mb-3 text-sm text-muted-foreground">
                                                             {lesson.description ||
