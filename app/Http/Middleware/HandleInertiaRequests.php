@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Language;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -35,13 +36,29 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        return [
+        $user = $request->user();
+
+        $sharedData = [
             ...parent::share($request),
             'name' => config('app.name'),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user,
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
+
+        // Share teacher's courses for sidebar
+        if ($user && $user->role === 'teacher') {
+            $sharedData['courses'] = $user->taughtCourses()
+                ->with(['modules.lessons'])
+                ->orderBy('order')
+                ->get();
+
+            $sharedData['languages'] = Language::where('is_active', true)
+                ->orderBy('name')
+                ->get(['id', 'name', 'code']);
+        }
+
+        return $sharedData;
     }
 }

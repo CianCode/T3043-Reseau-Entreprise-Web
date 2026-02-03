@@ -16,6 +16,7 @@ class Lesson extends Model
         'module_id',
         'title',
         'description',
+        'content',
         'order',
         'duration_minutes',
     ];

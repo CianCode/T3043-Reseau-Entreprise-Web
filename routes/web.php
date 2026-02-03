@@ -27,6 +27,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('courses/{course}/modules/reorder', [App\Http\Controllers\ModuleController::class, 'reorder'])->name('modules.reorder');
 
     Route::post('lessons', [App\Http\Controllers\LessonController::class, 'store'])->name('lessons.store');
+    Route::get('lessons/{lesson}/edit', [App\Http\Controllers\LessonController::class, 'edit'])->name('lessons.edit');
+    Route::patch('lessons/{lesson}', [App\Http\Controllers\LessonController::class, 'update'])->name('lessons.update');
     Route::delete('lessons/{lesson}', [App\Http\Controllers\LessonController::class, 'destroy'])->name('lessons.destroy');
 });
 
