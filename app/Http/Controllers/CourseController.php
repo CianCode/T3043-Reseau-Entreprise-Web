@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreCourseRequest;
 use App\Models\Course;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -42,5 +43,26 @@ class CourseController extends Controller
         return Inertia::render('courses/show', [
             'course' => $course,
         ]);
+    }
+
+    public function update(Request $request, Course $course): RedirectResponse
+    {
+        // Ensure the user owns this course
+        if ($course->teacher_id !== auth()->id()) {
+            abort(403, 'Unauthorized');
+        }
+
+        $validated = $request->validate([
+            'is_published' => 'sometimes|boolean',
+            'title' => 'sometimes|string|max:255',
+            'description' => 'sometimes|string|nullable',
+            'level' => 'sometimes|string|in:beginner,intermediate,advanced',
+            'thumbnail' => 'sometimes|string|nullable',
+        ]);
+
+        $course->update($validated);
+
+        return redirect()->back()
+            ->with('success', 'Course updated successfully!');
     }
 }

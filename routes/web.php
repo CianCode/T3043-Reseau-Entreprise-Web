@@ -22,6 +22,7 @@ Route::get('dashboard/module/{module}', [App\Http\Controllers\DashboardControlle
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('courses', [App\Http\Controllers\CourseController::class, 'store'])->name('courses.store');
     Route::get('courses/{course}', [App\Http\Controllers\CourseController::class, 'show'])->name('courses.show');
+    Route::patch('courses/{course}', [App\Http\Controllers\CourseController::class, 'update'])->name('courses.update');
 
     Route::post('modules', [App\Http\Controllers\ModuleController::class, 'store'])->name('modules.store');
     Route::post('courses/{course}/modules/reorder', [App\Http\Controllers\ModuleController::class, 'reorder'])->name('modules.reorder');
@@ -30,6 +31,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('lessons/{lesson}/edit', [App\Http\Controllers\LessonController::class, 'edit'])->name('lessons.edit');
     Route::patch('lessons/{lesson}', [App\Http\Controllers\LessonController::class, 'update'])->name('lessons.update');
     Route::delete('lessons/{lesson}', [App\Http\Controllers\LessonController::class, 'destroy'])->name('lessons.destroy');
+
+    // Conversation routes
+    Route::get('conversations', [App\Http\Controllers\ConversationController::class, 'index'])->name('conversations.index');
+    Route::get('conversations/{conversation}', [App\Http\Controllers\ConversationController::class, 'show'])->name('conversations.show');
+    Route::post('conversations/messages', [App\Http\Controllers\ConversationController::class, 'storeMessage'])->name('conversations.messages.store');
+    Route::post('conversations/get-or-create', [App\Http\Controllers\ConversationController::class, 'getOrCreate'])->name('conversations.getOrCreate');
+    Route::post('conversations/{conversation}/mark-as-read', [App\Http\Controllers\ConversationController::class, 'markAsRead'])->name('conversations.markAsRead');
 });
 
 // Admin routes

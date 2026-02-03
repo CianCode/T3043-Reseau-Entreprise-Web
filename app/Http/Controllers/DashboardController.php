@@ -27,6 +27,28 @@ class DashboardController extends Controller
             $data['enrolledCourses'] = $enrolledCourses;
         }
 
+        // Teacher-specific data
+        if ($user->role === 'teacher') {
+            $courses = $user->taughtCourses()
+                ->withCount('enrolledStudents')
+                ->with(['language', 'modules'])
+                ->orderBy('order')
+                ->get();
+
+            $totalCourses = $courses->count();
+            $publishedCourses = $courses->where('is_published', true)->count();
+            $totalStudents = $courses->sum('enrolled_students_count');
+
+            $data['courses'] = $courses;
+            $data['stats'] = [
+                'totalCourses' => $totalCourses,
+                'publishedCourses' => $publishedCourses,
+                'unpublishedCourses' => $totalCourses - $publishedCourses,
+                'totalStudents' => $totalStudents,
+            ];
+            $data['languages'] = Language::where('is_active', true)->orderBy('name')->get(['id', 'name', 'code']);
+        }
+
         return Inertia::render('dashboard', $data);
     }
 

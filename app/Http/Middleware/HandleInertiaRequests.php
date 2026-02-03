@@ -57,6 +57,28 @@ class HandleInertiaRequests extends Middleware
             $sharedData['languages'] = Language::where('is_active', true)
                 ->orderBy('name')
                 ->get(['id', 'name', 'code']);
+
+            // Share conversation data with unread count
+            $sharedData['conversations'] = [
+                'unreadCount' => \App\Models\Conversation::where('teacher_id', $user->id)
+                    ->whereHas('messages', function ($query) use ($user) {
+                        $query->where('is_read', false)
+                            ->where('sender_id', '!=', $user->id);
+                    })
+                    ->count(),
+            ];
+        }
+
+        // Share conversation data for students
+        if ($user && $user->role === 'student') {
+            $sharedData['conversations'] = [
+                'unreadCount' => \App\Models\Conversation::where('student_id', $user->id)
+                    ->whereHas('messages', function ($query) use ($user) {
+                        $query->where('is_read', false)
+                            ->where('sender_id', '!=', $user->id);
+                    })
+                    ->count(),
+            ];
         }
 
         return $sharedData;

@@ -6,6 +6,7 @@ import {
     FolderPlus,
     GraduationCap,
     LayoutGrid,
+    MessageSquare,
     Plus,
     Settings,
 } from 'lucide-react';
@@ -56,7 +57,7 @@ const platformNavItems: NavItem[] = [
 const footerNavItems: NavItem[] = [];
 
 export function AppSidebar() {
-    const { auth, courses, languages } = usePage().props as any;
+    const { auth, courses, languages, conversations } = usePage().props as any;
     const user = auth?.user;
     const isTeacher = user?.role === 'teacher';
     const [openCourses, setOpenCourses] = useState<Record<number, boolean>>({});
@@ -218,6 +219,34 @@ export function AppSidebar() {
                                     </Collapsible>
                                 ))
                             )}
+                        </SidebarMenu>
+                    </SidebarGroup>
+                )}
+
+                {/* Chats Section - For Teachers and Students */}
+                {(isTeacher || user?.role === 'student') && (
+                    <SidebarGroup>
+                        <SidebarGroupLabel>
+                            {isTeacher ? 'Student Chats' : 'Messages'}
+                        </SidebarGroupLabel>
+                        <SidebarMenu>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton asChild>
+                                    <Link href="/conversations">
+                                        <MessageSquare />
+                                        <span>
+                                            {isTeacher
+                                                ? 'All Conversations'
+                                                : 'My Messages'}
+                                        </span>
+                                        {conversations?.unreadCount > 0 && (
+                                            <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-xs text-primary-foreground">
+                                                {conversations.unreadCount}
+                                            </span>
+                                        )}
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
                         </SidebarMenu>
                     </SidebarGroup>
                 )}
