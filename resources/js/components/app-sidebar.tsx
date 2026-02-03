@@ -57,7 +57,8 @@ const platformNavItems: NavItem[] = [
 const footerNavItems: NavItem[] = [];
 
 export function AppSidebar() {
-    const { auth, courses, languages, enrolledCourses, conversations } = usePage().props as any;
+    const { auth, courses, languages, enrolledCourses, conversations } =
+        usePage().props as any;
     const user = auth?.user;
     const isTeacher = user?.role === 'teacher';
     const isStudent = user?.role === 'student';
@@ -130,28 +131,38 @@ export function AppSidebar() {
                                                 <ContextMenuTrigger asChild>
                                                     <CollapsibleTrigger asChild>
                                                         <SidebarMenuButton
-                                                            tooltip={course.title}
+                                                            tooltip={
+                                                                course.title
+                                                            }
                                                         >
                                                             <BookOpen />
-                                                            <span>{course.title}</span>
+                                                            <span>
+                                                                {course.title}
+                                                            </span>
                                                             <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                                                         </SidebarMenuButton>
                                                     </CollapsibleTrigger>
                                                 </ContextMenuTrigger>
                                                 <ContextMenuContent>
                                                     <ContextMenuItem asChild>
-                                                        <Link href={`/courses/${course.id}`}>
+                                                        <Link
+                                                            href={`/courses/${course.id}`}
+                                                        >
                                                             <Settings className="mr-2 h-4 w-4" />
                                                             Manage Course
                                                         </Link>
                                                     </ContextMenuItem>
                                                     <ContextMenuItem
                                                         onClick={() => {
-                                                            setSelectedCourseForModule({
-                                                                id: course.id,
-                                                                title: course.title,
-                                                            });
-                                                            setCreateModuleOpen(true);
+                                                            setSelectedCourseForModule(
+                                                                {
+                                                                    id: course.id,
+                                                                    title: course.title,
+                                                                },
+                                                            );
+                                                            setCreateModuleOpen(
+                                                                true,
+                                                            );
                                                         }}
                                                     >
                                                         <FolderPlus className="mr-2 h-4 w-4" />
@@ -161,29 +172,47 @@ export function AppSidebar() {
                                             </ContextMenu>
                                             <CollapsibleContent>
                                                 <SidebarMenuSub>
-                                                    {course.modules?.map((module: any) => (
-                                                        <SidebarMenuSubItem key={module.id}>
-                                                            <SidebarMenuSubButton asChild>
-                                                                <Link href={`/dashboard/module/${module.id}`}>
-                                                                    <Folder className="h-4 w-4" />
-                                                                    <span>{module.title}</span>
-                                                                </Link>
-                                                            </SidebarMenuSubButton>
-                                                        </SidebarMenuSubItem>
-                                                    ))}
+                                                    {course.modules?.map(
+                                                        (module: any) => (
+                                                            <SidebarMenuSubItem
+                                                                key={module.id}
+                                                            >
+                                                                <SidebarMenuSubButton
+                                                                    asChild
+                                                                >
+                                                                    <Link
+                                                                        href={`/dashboard/module/${module.id}`}
+                                                                    >
+                                                                        <Folder className="h-4 w-4" />
+                                                                        <span>
+                                                                            {
+                                                                                module.title
+                                                                            }
+                                                                        </span>
+                                                                    </Link>
+                                                                </SidebarMenuSubButton>
+                                                            </SidebarMenuSubItem>
+                                                        ),
+                                                    )}
                                                     <SidebarMenuSubItem>
                                                         <SidebarMenuSubButton
                                                             onClick={() => {
-                                                                setSelectedCourseForModule({
-                                                                    id: course.id,
-                                                                    title: course.title,
-                                                                });
-                                                                setCreateModuleOpen(true);
+                                                                setSelectedCourseForModule(
+                                                                    {
+                                                                        id: course.id,
+                                                                        title: course.title,
+                                                                    },
+                                                                );
+                                                                setCreateModuleOpen(
+                                                                    true,
+                                                                );
                                                             }}
                                                             className="cursor-pointer text-muted-foreground"
                                                         >
                                                             <FolderPlus className="h-4 w-4" />
-                                                            <span>Add Module</span>
+                                                            <span>
+                                                                Add Module
+                                                            </span>
                                                         </SidebarMenuSubButton>
                                                     </SidebarMenuSubItem>
                                                 </SidebarMenuSub>
@@ -201,7 +230,8 @@ export function AppSidebar() {
                     <SidebarGroup>
                         <SidebarGroupLabel>My Courses</SidebarGroupLabel>
                         <SidebarMenu>
-                            {!enrolledCourses || enrolledCourses.length === 0 ? (
+                            {!enrolledCourses ||
+                            enrolledCourses.length === 0 ? (
                                 <SidebarMenuItem>
                                     <div className="px-2 py-1 text-sm text-muted-foreground">
                                         No courses yet
@@ -211,7 +241,9 @@ export function AppSidebar() {
                                 enrolledCourses.map((course: any) => (
                                     <SidebarMenuItem key={course.id}>
                                         <SidebarMenuButton asChild>
-                                            <Link href={"/courses/" + course.id}>
+                                            <Link
+                                                href={'/courses/' + course.id}
+                                            >
                                                 <BookOpen />
                                                 <span>{course.title}</span>
                                             </Link>
