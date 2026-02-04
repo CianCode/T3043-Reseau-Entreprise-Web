@@ -5,6 +5,7 @@ Ce guide explique comment déployer Barde Lingo sur une VM Proxmox en utilisant 
 ## Architecture
 
 Cette application utilise une architecture multi-conteneurs Docker:
+
 - **app**: PHP-FPM 8.4 + Laravel + Reverb + Queue Workers (Supervisor)
 - **nginx**: Serveur web Nginx (proxy vers PHP-FPM et WebSocket)
 - **redis**: Cache Redis
@@ -20,16 +21,18 @@ Cette application utilise une architecture multi-conteneurs Docker:
 ## Étape 1: Préparer la VM Proxmox
 
 ### Créer une VM Ubuntu
+
 1. Dans l'interface web Proxmox, créez une nouvelle VM:
-   - **OS**: Ubuntu 22.04 ou 24.04 LTS
-   - **CPU**: 2+ cœurs
-   - **RAM**: 4GB minimum (8GB recommandé)
-   - **Disque**: 30GB minimum
-   - **Réseau**: Bridge vers votre réseau
+    - **OS**: Ubuntu 22.04 ou 24.04 LTS
+    - **CPU**: 2+ cœurs
+    - **RAM**: 4GB minimum (8GB recommandé)
+    - **Disque**: 30GB minimum
+    - **Réseau**: Bridge vers votre réseau
 
 2. Démarrez la VM et complétez l'installation d'Ubuntu
 
 ### Configuration initiale de la VM
+
 Connectez-vous en SSH à votre VM et exécutez:
 
 ```bash
@@ -49,6 +52,8 @@ sudo ufw enable
 
 ## Étape 2: Installer Docker
 
+### Pour Debian (Bookworm, Trixie, etc.)
+
 ```bash
 # Supprimer les anciennes versions de Docker
 sudo apt remove -y docker docker-engine docker.io containerd runc
@@ -57,14 +62,51 @@ sudo apt remove -y docker docker-engine docker.io containerd runc
 sudo apt install -y \
     ca-certificates \
     curl \
-    gnupg \
-    lsb-release
+    gnupg
 
 # Ajouter la clé GPG officielle de Docker
-sudo mkdir -p /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
 
-# Configurer le dépôt Docker
+# Configurer le dépôt Docker pour Debian
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
+  bookworm stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+# Note: Utilisez 'bookworm' même pour Debian Trixie car c'est la dernière version supportée par Docker
+
+# Installer Docker Engine
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+# Ajouter votre utilisateur au groupe docker
+sudo usermod -aG docker $USER
+newgrp docker
+
+# Vérifier l'installation
+docker --version
+docker compose version
+```
+
+### Pour Ubuntu (22.04, 24.04)
+
+```bash
+# Supprimer les anciennes versions de Docker
+sudo apt remove -y docker docker-engine docker.io containerd runc
+
+# Installer les dépendances Docker
+sudo apt install -y \
+    ca-certificates \
+    curl \
+    gnupg
+
+# Ajouter la clé GPG officielle de Docker
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
+
+# Configurer le dépôt Docker pour Ubuntu
 echo \
   "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
   $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
@@ -76,6 +118,25 @@ sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin d
 # Ajouter votre utilisateur au groupe docker
 sudo usermod -aG docker $USER
 newgrp docker
+
+# Vérifier l'installation
+docker --version
+docker compose version
+```
+
+### Alternative: Installation rapide avec le script officiel
+
+```bash
+# Méthode rapide qui détecte automatiquement votre distribution
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+
+# Ajouter votre utilisateur au groupe docker
+sudo usermod -aG docker $USER
+newgrp docker
+
+# Installer docker-compose
+sudo apt install -y docker-compose-plugin
 
 # Vérifier l'installation
 docker --version
@@ -106,17 +167,20 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO barde_lingo;
 ### Configurer PostgreSQL pour l'accès distant
 
 Éditez `postgresql.conf`:
+
 ```conf
 listen_addresses = '*'  # ou une IP spécifique
 ```
 
 Éditez `pg_hba.conf` pour autoriser l'IP de votre VM:
+
 ```conf
 # TYPE  DATABASE        USER            ADDRESS                 METHOD
 host    barde_lingo     barde_lingo     IP_DE_VOTRE_VM/32      scram-sha-256
 ```
 
 Redémarrez PostgreSQL:
+
 ```bash
 sudo systemctl restart postgresql
 ```
@@ -124,6 +188,7 @@ sudo systemctl restart postgresql
 ## Étape 4: Déployer l'application sur la VM
 
 ### Cloner le dépôt
+
 ```bash
 cd /opt
 sudo git clone https://github.com/VOTRE_USERNAME/barde_lingo.git
@@ -132,6 +197,7 @@ cd barde_lingo
 ```
 
 ### Configurer l'environnement
+
 ```bash
 # Copier l'exemple de production
 cp .env.production.example .env
@@ -141,6 +207,7 @@ nano .env
 ```
 
 Mettez à jour ces valeurs critiques dans `.env`:
+
 ```env
 APP_ENV=production
 APP_DEBUG=false
@@ -163,6 +230,7 @@ REVERB_SCHEME=http  # Changez en https si vous utilisez SSL
 ```
 
 ### Générer la clé d'application
+
 ```bash
 # Démarrer temporairement le conteneur app pour générer la clé
 docker compose -f docker-compose.production.yml run --rm app php artisan key:generate --show
@@ -171,6 +239,7 @@ docker compose -f docker-compose.production.yml run --rm app php artisan key:gen
 Copiez la clé générée et collez-la dans votre fichier `.env` comme `APP_KEY=base64:...`
 
 ### Construire et démarrer les conteneurs
+
 ```bash
 # Construire l'image Docker
 docker compose -f docker-compose.production.yml build
@@ -183,11 +252,13 @@ docker compose -f docker-compose.production.yml ps
 ```
 
 ### Exécuter les migrations de base de données
+
 ```bash
 docker compose -f docker-compose.production.yml exec app php artisan migrate --force
 ```
 
 ### Optimiser l'application
+
 ```bash
 docker compose -f docker-compose.production.yml exec app php artisan config:cache
 docker compose -f docker-compose.production.yml exec app php artisan route:cache
@@ -196,6 +267,7 @@ docker compose -f docker-compose.production.yml exec app php artisan event:cache
 ```
 
 ### Remplir la base de données (Optionnel)
+
 ```bash
 docker compose -f docker-compose.production.yml exec app php artisan db:seed
 ```
@@ -217,6 +289,7 @@ sudo certbot certonly --standalone -d votre-domaine.com -d www.votre-domaine.com
 ```
 
 Créez la configuration SSL pour Nginx:
+
 ```bash
 nano docker/nginx/ssl.conf
 ```
@@ -225,15 +298,15 @@ nano docker/nginx/ssl.conf
 server {
     listen 443 ssl http2;
     server_name votre-domaine.com www.votre-domaine.com;
-    
+
     ssl_certificate /etc/letsencrypt/live/votre-domaine.com/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/votre-domaine.com/privkey.pem;
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers HIGH:!aNULL:!MD5;
-    
+
     root /var/www/public;
     index index.php;
-    
+
     client_max_body_size 100M;
 
     location / {
@@ -264,24 +337,27 @@ server {
 ```
 
 Mettez à jour `docker-compose.production.yml` pour monter les certificats:
+
 ```yaml
-  nginx:
+nginx:
     volumes:
-      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
-      - ./docker/nginx/ssl.conf:/etc/nginx/conf.d/ssl.conf
-      - ./docker/nginx/reverb.conf:/etc/nginx/conf.d/reverb.conf
-      - /etc/letsencrypt:/etc/letsencrypt:ro
-      - app_public:/var/www/public:ro
-      - ./storage/logs/nginx:/var/log/nginx
+        - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+        - ./docker/nginx/ssl.conf:/etc/nginx/conf.d/ssl.conf
+        - ./docker/nginx/reverb.conf:/etc/nginx/conf.d/reverb.conf
+        - /etc/letsencrypt:/etc/letsencrypt:ro
+        - app_public:/var/www/public:ro
+        - ./storage/logs/nginx:/var/log/nginx
 ```
 
 Mettez à jour `.env`:
+
 ```env
 APP_URL=https://votre-domaine.com
 REVERB_SCHEME=https
 ```
 
 Redémarrez:
+
 ```bash
 docker compose -f docker-compose.production.yml up -d
 ```
@@ -289,11 +365,13 @@ docker compose -f docker-compose.production.yml up -d
 ### Renouvellement Automatique SSL
 
 Créez un cron job pour renouveler les certificats:
+
 ```bash
 sudo crontab -e
 ```
 
 Ajoutez:
+
 ```cron
 0 3 * * * certbot renew --quiet --deploy-hook "cd /opt/barde_lingo && docker compose -f docker-compose.production.yml restart nginx"
 ```
@@ -307,6 +385,7 @@ chmod +x deploy-docker.sh
 ```
 
 Pour déployer les mises à jour:
+
 ```bash
 ./deploy-docker.sh
 ```
@@ -314,6 +393,7 @@ Pour déployer les mises à jour:
 ## Surveillance & Maintenance
 
 ### Consulter les logs
+
 ```bash
 # Tous les conteneurs
 docker compose -f docker-compose.production.yml logs -f
@@ -337,6 +417,7 @@ docker compose -f docker-compose.production.yml exec app tail -f storage/logs/la
 ```
 
 ### Redémarrer les services
+
 ```bash
 # Redémarrer tous les conteneurs
 docker compose -f docker-compose.production.yml restart
@@ -354,6 +435,7 @@ docker compose -f docker-compose.production.yml ps --format json | jq '.[].Healt
 ```
 
 ### Sauvegardes de base de données
+
 ```bash
 # Sauvegarder la base de données externe
 pg_dump -h votre-db-host -U barde_lingo barde_lingo > backup_$(date +%Y%m%d).sql
@@ -363,6 +445,7 @@ docker compose -f docker-compose.production.yml exec app php artisan backup:run
 ```
 
 ### Mettre à jour l'application
+
 ```bash
 cd /opt/barde_lingo
 ./deploy-docker.sh
@@ -371,6 +454,7 @@ cd /opt/barde_lingo
 ## Dépannage
 
 ### Le conteneur ne démarre pas
+
 ```bash
 # Vérifier les logs
 docker compose -f docker-compose.production.yml logs app
@@ -381,6 +465,7 @@ sudo netstat -tlnp | grep -E '80|8080|6379|9000'
 ```
 
 ### Impossible de se connecter à la base de données
+
 ```bash
 # Tester depuis le conteneur
 docker compose -f docker-compose.production.yml exec app php artisan tinker
@@ -394,6 +479,7 @@ docker compose -f docker-compose.production.yml exec app php -r "
 ```
 
 ### Problèmes de permissions
+
 ```bash
 # Corriger les permissions de storage
 docker compose -f docker-compose.production.yml exec app chown -R www-data:www-data /var/www/storage
@@ -401,6 +487,7 @@ docker compose -f docker-compose.production.yml exec app chmod -R 755 /var/www/s
 ```
 
 ### Vider les caches
+
 ```bash
 docker compose -f docker-compose.production.yml exec app php artisan cache:clear
 docker compose -f docker-compose.production.yml exec app php artisan config:clear
@@ -409,6 +496,7 @@ docker compose -f docker-compose.production.yml exec app php artisan view:clear
 ```
 
 ### Nginx ne fonctionne pas
+
 ```bash
 # Vérifier la configuration Nginx
 docker compose -f docker-compose.production.yml exec nginx nginx -t
@@ -476,6 +564,7 @@ docker compose -f docker-compose.production.yml down -v  # Supprime les volumes
 ## Support
 
 En cas de problème, vérifiez:
+
 - Logs Laravel: `storage/logs/laravel.log`
 - Logs Supervisor: `storage/logs/supervisord.log`
 - Logs des conteneurs: `docker compose logs`
