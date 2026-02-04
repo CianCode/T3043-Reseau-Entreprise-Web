@@ -16,6 +16,9 @@ class LessonProgress extends Model
         'lesson_id',
         'is_completed',
         'completed_at',
+        'attempts',
+        'views',
+        'best_score',
     ];
 
     protected function casts(): array
@@ -23,6 +26,7 @@ class LessonProgress extends Model
         return [
             'is_completed' => 'boolean',
             'completed_at' => 'datetime',
+            'best_score' => 'decimal:2',
         ];
     }
 

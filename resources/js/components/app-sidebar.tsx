@@ -17,6 +17,7 @@ import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
 import { Button } from '@/components/ui/button';
+import { RadialProgress } from '@/components/ui/radial-progress';
 import {
     Collapsible,
     CollapsibleContent,
@@ -123,24 +124,37 @@ export function AppSidebar() {
                                         <ContextMenu>
                                             <ContextMenuTrigger asChild>
                                                 <CollapsibleTrigger asChild>
-                                                    <SidebarMenuButton tooltip={course.title}>
+                                                    <SidebarMenuButton
+                                                        tooltip={course.title}
+                                                    >
                                                         <BookOpen />
-                                                        <span>{course.title}</span>
+                                                        <span>
+                                                            {course.title}
+                                                        </span>
                                                         <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                                                     </SidebarMenuButton>
                                                 </CollapsibleTrigger>
                                             </ContextMenuTrigger>
                                             <ContextMenuContent>
                                                 <ContextMenuItem asChild>
-                                                    <Link href={`/courses/${course.id}`}>
+                                                    <Link
+                                                        href={`/courses/${course.id}`}
+                                                    >
                                                         <Settings className="mr-2 h-4 w-4" />
                                                         Manage Course
                                                     </Link>
                                                 </ContextMenuItem>
                                                 <ContextMenuItem
                                                     onClick={() => {
-                                                        setSelectedCourseForModule({ id: course.id, title: course.title });
-                                                        setCreateModuleOpen(true);
+                                                        setSelectedCourseForModule(
+                                                            {
+                                                                id: course.id,
+                                                                title: course.title,
+                                                            },
+                                                        );
+                                                        setCreateModuleOpen(
+                                                            true,
+                                                        );
                                                     }}
                                                 >
                                                     <FolderPlus className="mr-2 h-4 w-4" />
@@ -150,16 +164,28 @@ export function AppSidebar() {
                                         </ContextMenu>
                                         <CollapsibleContent>
                                             <SidebarMenuSub>
-                                                {course.modules?.map((module: any) => (
-                                                    <SidebarMenuSubItem key={module.id}>
-                                                        <SidebarMenuSubButton asChild>
-                                                            <Link href={`/dashboard/module/${module.id}`}>
-                                                                <Folder className="h-4 w-4" />
-                                                                <span>{module.title}</span>
-                                                            </Link>
-                                                        </SidebarMenuSubButton>
-                                                    </SidebarMenuSubItem>
-                                                ))}
+                                                {course.modules?.map(
+                                                    (module: any) => (
+                                                        <SidebarMenuSubItem
+                                                            key={module.id}
+                                                        >
+                                                            <SidebarMenuSubButton
+                                                                asChild
+                                                            >
+                                                                <Link
+                                                                    href={`/dashboard/module/${module.id}`}
+                                                                >
+                                                                    <Folder className="h-4 w-4" />
+                                                                    <span>
+                                                                        {
+                                                                            module.title
+                                                                        }
+                                                                    </span>
+                                                                </Link>
+                                                            </SidebarMenuSubButton>
+                                                        </SidebarMenuSubItem>
+                                                    ),
+                                                )}
                                             </SidebarMenuSub>
                                         </CollapsibleContent>
                                     </SidebarMenuItem>
@@ -174,7 +200,8 @@ export function AppSidebar() {
                     <SidebarGroup>
                         <SidebarGroupLabel>My Courses</SidebarGroupLabel>
                         <SidebarMenu>
-                            {!enrolledCourses || enrolledCourses.length === 0 ? (
+                            {!enrolledCourses ||
+                            enrolledCourses.length === 0 ? (
                                 <SidebarMenuItem>
                                     <div className="px-2 py-1 text-sm text-muted-foreground">
                                         No courses yet
@@ -182,10 +209,16 @@ export function AppSidebar() {
                                 </SidebarMenuItem>
                             ) : (
                                 enrolledCourses.map((course: any) => (
-                                    <Collapsible key={course.id} asChild className="group/collapsible">
+                                    <Collapsible
+                                        key={course.id}
+                                        asChild
+                                        className="group/collapsible"
+                                    >
                                         <SidebarMenuItem>
                                             <CollapsibleTrigger asChild>
-                                                <SidebarMenuButton tooltip={course.title}>
+                                                <SidebarMenuButton
+                                                    tooltip={course.title}
+                                                >
                                                     <BookOpen />
                                                     <span>{course.title}</span>
                                                     <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
@@ -193,26 +226,74 @@ export function AppSidebar() {
                                             </CollapsibleTrigger>
                                             <CollapsibleContent>
                                                 <SidebarMenuSub>
-                                                    {course.modules?.map((module: any) => (
-                                                        <div key={module.id} className="mb-2">
-                                                            {/* Titre du Module */}
-                                                            <div className="flex items-center px-2 py-1 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-                                                                <Folder className="mr-2 h-3 w-3" />
-                                                                {module.title}
+                                                    {course.modules?.map(
+                                                        (module: any) => (
+                                                            <div
+                                                                key={module.id}
+                                                                className="mb-2"
+                                                            >
+                                                                {/* Titre du Module */}
+                                                                <div className="flex items-center justify-between px-2 py-1 text-[10px] font-bold tracking-wider text-muted-foreground uppercase">
+                                                                    <div className="flex items-center">
+                                                                        <Folder className="mr-2 h-3 w-3" />
+                                                                        {
+                                                                            module.title
+                                                                        }
+                                                                    </div>
+                                                                    {module.progress && (
+                                                                        <RadialProgress
+                                                                            percentage={
+                                                                                module
+                                                                                    .progress
+                                                                                    .percentage
+                                                                            }
+                                                                            variant={
+                                                                                module
+                                                                                    .progress
+                                                                                    .variant as
+                                                                                    | 'success'
+                                                                                    | 'danger'
+                                                                                    | 'neutral'
+                                                                            }
+                                                                            size={
+                                                                                28
+                                                                            }
+                                                                            strokeWidth={
+                                                                                2.5
+                                                                            }
+                                                                        />
+                                                                    )}
+                                                                </div>
+                                                                {/* Liste des leçons du module */}
+                                                                {module.lessons?.map(
+                                                                    (
+                                                                        lesson: any,
+                                                                    ) => (
+                                                                        <SidebarMenuSubItem
+                                                                            key={
+                                                                                lesson.id
+                                                                            }
+                                                                        >
+                                                                            <SidebarMenuSubButton
+                                                                                asChild
+                                                                            >
+                                                                                <Link
+                                                                                    href={`/lessons/${lesson.id}`}
+                                                                                >
+                                                                                    <FileText className="mr-2 h-3 w-3" />
+                                                                                    <span className="truncate">
+                                                                                        {
+                                                                                            lesson.title
+                                                                                        }
+                                                                                    </span>
+                                                                                </Link>
+                                                                            </SidebarMenuSubButton>
+                                                                        </SidebarMenuSubItem>
+                                                                    ),
+                                                                )}
                                                             </div>
-                                                            {/* Liste des leçons du module */}
-                                                            {module.lessons?.map((lesson: any) => (
-                                                                <SidebarMenuSubItem key={lesson.id}>
-                                                                    <SidebarMenuSubButton asChild>
-                                                                        <Link href={`/lessons/${lesson.id}`}>
-                                                                            <FileText className="mr-2 h-3 w-3" />
-                                                                            <span className="truncate">{lesson.title}</span>
-                                                                        </Link>
-                                                                    </SidebarMenuSubButton>
-                                                                </SidebarMenuSubItem>
-                                                            ))}
-                                                        </div>
-                                                    ))}
+                                                        ),
+                                                    )}
                                                 </SidebarMenuSub>
                                             </CollapsibleContent>
                                         </SidebarMenuItem>
@@ -234,7 +315,11 @@ export function AppSidebar() {
                                 <SidebarMenuButton asChild>
                                     <Link href="/conversations">
                                         <MessageSquare />
-                                        <span>{isTeacher ? 'All Conversations' : 'My Messages'}</span>
+                                        <span>
+                                            {isTeacher
+                                                ? 'All Conversations'
+                                                : 'My Messages'}
+                                        </span>
                                         {conversations?.unreadCount > 0 && (
                                             <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-xs text-primary-foreground">
                                                 {conversations.unreadCount}

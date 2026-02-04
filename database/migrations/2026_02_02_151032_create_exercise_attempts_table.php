@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('exercise_id')->constrained()->cascadeOnDelete();
-            $table->integer('score');
-            $table->integer('max_score');
+            $table->decimal('score', 5, 2);
+            $table->decimal('max_score', 5, 2);
             $table->boolean('is_passed')->default(false);
             $table->json('answers');
             $table->integer('attempt_number')->default(1);

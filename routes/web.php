@@ -5,8 +5,11 @@ use Inertia\Inertia;
 use Laravel\Fortify\Features;
 
 Route::get('/', function () {
-    $courses = \App\Models\Course::orderBy('order')
+    $courses = \App\Models\Course::with('language:id,name,flag_icon')
+        ->where('is_published', true)
+        ->orderBy('order')
         ->get(['id', 'title', 'description', 'level', 'language_id', 'is_published']);
+
     return Inertia::render('welcome', [
         'canRegister' => Features::enabled(Features::registration()),
         'courses' => $courses,
@@ -36,6 +39,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('lessons/{lesson}/edit', [App\Http\Controllers\LessonController::class, 'edit'])->name('lessons.edit');
     Route::patch('lessons/{lesson}', [App\Http\Controllers\LessonController::class, 'update'])->name('lessons.update');
     Route::delete('lessons/{lesson}', [App\Http\Controllers\LessonController::class, 'destroy'])->name('lessons.destroy');
+
+    // Exercise attempt routes
+    Route::post('exercises/{exercise}/submit', [App\Http\Controllers\ExerciseAttemptController::class, 'submit'])->name('exercises.submit');
 
     // Conversation routes
     Route::get('conversations', [App\Http\Controllers\ConversationController::class, 'index'])->name('conversations.index');

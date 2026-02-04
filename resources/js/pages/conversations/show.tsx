@@ -19,6 +19,12 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from '@/components/ui/popover';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import type { BreadcrumbItem } from '@/types';
 import { dashboard } from '@/routes';
@@ -254,7 +260,7 @@ export default function ConversationShow({
             <Head title={`Chat with ${otherUser.name}`} />
             <div className="flex h-[calc(100vh-5.5rem)] overflow-hidden rounded-xl border border-sidebar-border/70 bg-background dark:border-sidebar-border">
                 {/* Left Sidebar - Conversations List */}
-                <div className="flex w-80 flex-shrink-0 flex-col border-r border-sidebar-border/70 dark:border-sidebar-border">
+                <div className="flex w-80 shrink-0 flex-col border-r border-sidebar-border/70 dark:border-sidebar-border">
                     {/* Header */}
                     <div className="border-b border-sidebar-border/70 p-4 dark:border-sidebar-border">
                         <div className="mb-3 flex items-center justify-between">
@@ -431,9 +437,24 @@ export default function ConversationShow({
                                 </p>
                             </div>
                         </div>
-                        <Button variant="ghost" size="icon">
-                            <MoreVertical className="h-4 w-4" />
-                        </Button>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="icon">
+                                    <MoreVertical className="h-4 w-4" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem>
+                                    View Profile
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                    Mute Conversation
+                                </DropdownMenuItem>
+                                <DropdownMenuItem variant="destructive">
+                                    Delete Conversation
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
 
                     {/* Messages Area */}
@@ -514,7 +535,7 @@ export default function ConversationShow({
                                     setData('message', e.target.value)
                                 }
                                 placeholder="Type a message..."
-                                className="min-h-[60px] resize-none"
+                                className="min-h-15 resize-none"
                                 onKeyDown={(e) => {
                                     if (e.key === 'Enter' && !e.shiftKey) {
                                         e.preventDefault();
@@ -526,7 +547,7 @@ export default function ConversationShow({
                                 type="submit"
                                 size="icon"
                                 disabled={processing || !data.message.trim()}
-                                className="h-[60px] w-[60px]"
+                                className="h-15 w-15"
                             >
                                 <Send className="h-4 w-4" />
                             </Button>
