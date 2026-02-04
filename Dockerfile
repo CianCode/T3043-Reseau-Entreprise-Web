@@ -10,8 +10,7 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     zip \
     unzip \
-    supervisor \
-    nginx
+    supervisor
 
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -21,6 +20,7 @@ RUN docker-php-ext-install pdo_pgsql pgsql mbstring exif pcntl bcmath gd
 
 # Install Redis extension
 RUN pecl install redis && docker-php-ext-enable redis
+
 # Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
@@ -34,9 +34,6 @@ WORKDIR /var/www
 # Copy existing application directory contents
 COPY . /var/www
 
-# Copy nginx configuration
-COPY docker/nginx/default.conf /etc/nginx/sites-available/default
-
 # Copy supervisor configuration
 COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
@@ -49,8 +46,8 @@ RUN chown -R www-data:www-data /var/www \
     && chmod -R 755 /var/www/storage \
     && chmod -R 755 /var/www/bootstrap/cache
 
-# Expose port 80 for nginx and 8080 for Reverb
-EXPOSE 80 8080
+# Expose port 9000 for PHP-FPM and 8080 for Reverb
+EXPOSE 9000 8080
 
-# Start supervisor to manage nginx, php-fpm, reverb, and queue workers
+# Start supervisor to manage php-fpm, reverb, and queue workers
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
