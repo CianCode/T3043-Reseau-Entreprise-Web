@@ -7,9 +7,23 @@ use App\Models\Course;
 use App\Models\Module;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class ModuleController extends Controller
 {
+    public function create(Course $course): Response
+    {
+        // Ensure the user owns this course
+        if ($course->teacher_id !== auth()->id()) {
+            abort(403, 'Unauthorized');
+        }
+
+        return Inertia::render('modules/create', [
+            'course' => $course,
+        ]);
+    }
+
     public function store(StoreModuleRequest $request): RedirectResponse
     {
         $validated = $request->validated();

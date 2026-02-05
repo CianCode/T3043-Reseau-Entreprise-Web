@@ -31,6 +31,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('courses/{course}', [App\Http\Controllers\CourseController::class, 'update'])->name('courses.update');
 
     Route::post('courses/{course}/enroll', [App\Http\Controllers\EnrollmentController::class, 'enroll'])->name('courses.enroll');
+    Route::get('courses/{course}/modules/create', [App\Http\Controllers\ModuleController::class, 'create'])->name('modules.create');
     Route::post('modules', [App\Http\Controllers\ModuleController::class, 'store'])->name('modules.store');
     Route::post('courses/{course}/modules/reorder', [App\Http\Controllers\ModuleController::class, 'reorder'])->name('modules.reorder');
 
